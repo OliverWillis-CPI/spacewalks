@@ -1,5 +1,24 @@
 import matplotlib.pyplot as plt
 import pandas as pd
+import sys
+
+
+def main(input_file, output_file, graph_file):
+    print("--START--")
+
+    # Read the data from JSON file
+    eva_data = read_json_to_dataframe(input_file)
+
+    # Convert and export data to CSV file
+    write_dataframe_to_csv(eva_data, output_file)
+
+    # Sort dataframe by date ready to be plotted (date values are on x-axis)
+    eva_data.sort_values('date', inplace=True)
+
+    # Plot cumulative time spent in space over years
+    plot_cumulative_time_in_space(eva_data, graph_file)
+
+    print("--END--")
 
 
 def read_json_to_dataframe(input_file):
@@ -36,7 +55,6 @@ def write_dataframe_to_csv(df, output_file):
     print(f'Saving to CSV file {output_file}')
     # Save dataframe to CSV file for later analysis
     df.to_csv(output_file, index=False, encoding='utf-8')
-
 
 def plot_cumulative_time_in_space(df, graph_file):
     """
@@ -96,24 +114,17 @@ def add_duration_hours(df):
     )
     return df_copy
 
-# Main code
+if __name__ == "__main__":
 
-print("--START--")
+    print("--START--")
+    if len(sys.argv) <3:
+        input_file = open('data/eva-data.json', 'r', encoding='ascii')
+        output_file = open('results/eva-data.csv', 'w', encoding='utf-8')
+        print(f'Using default file paths and filenames: {input_file},{output_file}')
+    else:
+            input_file = sys.argv[1]
+            output_file = sys.argv[2]
+            print('Using custom input and output filenames')
 
-input_file = open('./eva-data.json', 'r', encoding='ascii')
-output_file = open('./eva-data.csv', 'w', encoding='utf-8')
-graph_file = './cumulative_eva_graph.png'
-
-# Read the data from JSON file
-eva_data = read_json_to_dataframe(input_file)
-
-# Convert and export data to CSV file
-write_dataframe_to_csv(eva_data, output_file)
-
-# Sort dataframe by date ready to be plotted (date values are on x-axis)
-eva_data.sort_values('date', inplace=True)
-
-# Plot cumulative time spent in space over years
-plot_cumulative_time_in_space(eva_data, graph_file)
-
-print("--END--")
+    graph_file = 'results/cumulative_eva_graph.png'
+    main(input_file, output_file, graph_file)
